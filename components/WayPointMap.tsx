@@ -76,7 +76,7 @@ export const WaypointMap = ({ onAddWaypoint }: WaypointMapProps) => {
                                 y1={start.y}
                                 x2={end.x}
                                 y2={end.y}
-                                stroke="#007AFF"
+                                stroke="#8b5cf6"
                                 strokeWidth="2"
                                 strokeDasharray="4"
                             />
@@ -159,14 +159,14 @@ const styles = StyleSheet.create({
         width: 12,
         height: 12,
         borderRadius: 6,
-        backgroundColor: '#007AFF',
+        backgroundColor: '#8b5cf6',
     },
     waypointLabel: {
         position: 'absolute',
         top: -24,
         width: 20,
         textAlign: 'center',
-        color: '#007AFF',
+        color: '#8b5cf6',
         fontSize: 12,
         fontWeight: '500',
     },
