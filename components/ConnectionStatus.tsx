@@ -7,14 +7,26 @@ import {
 } from "react-native";
 import { Wifi, WifiOff, Bluetooth, BluetoothOff, Bot } from "lucide-react-native";
 import Toast from 'react-native-toast-message';
+import {BluetoothModal, ConnectionStatusComponent} from './BluetoothModal';
 
 interface ConnectionStatusProps {
   isConnected: boolean;
+}
+interface ConnectionStatus {
+  isConnected: boolean;
+  deviceName: string | null;
+  error: string | null;
 }
 
 export const ConnectionStatus: React.FC<ConnectionStatusProps> = ({ isConnected }) => {
   const [isWifiEnabled, setIsWifiEnabled] = useState(true);
   const [isBluetoothEnabled, setIsBluetoothEnabled] = useState(false);
+  const [isBluetoothModalVisible, setIsBluetoothModalVisible] = useState(false);
+  const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>({
+    isConnected: false,
+    deviceName: null,
+    error: null,
+  });
 
   const handleWifiChange = () => {
     const newWifiState = !isWifiEnabled;
@@ -30,16 +42,25 @@ export const ConnectionStatus: React.FC<ConnectionStatusProps> = ({ isConnected 
   };
 
   const handleBluetoothChange = () => {
-    const newBluetoothState = !isBluetoothEnabled;
-    setIsBluetoothEnabled(newBluetoothState);
+    if (!isBluetoothEnabled) {
+      setIsBluetoothModalVisible(true);
+    } else {
+      setIsBluetoothEnabled(false);
+      Toast.show({
+        type: 'info',
+        text1: 'Bluetooth disabled',
+        position: 'top'
+      });
+    }
+  };
 
+  const handleBluetoothConnect = () => {
+    setIsBluetoothEnabled(true);
     Toast.show({
-      type: 'info',
-      text1: `Bluetooth ${newBluetoothState ? 'enabled' : 'disabled'}`,
+      type: 'success',
+      text1: 'Bluetooth device connecting...',
       position: 'top'
     });
-
-    console.log("Bluetooth mode changed:", newBluetoothState);
   };
 
   return (
@@ -110,7 +131,13 @@ export const ConnectionStatus: React.FC<ConnectionStatusProps> = ({ isConnected 
             </Text>
           </View>
         </View>
+        <BluetoothModal
+            isVisible={isBluetoothModalVisible}
+            onClose={() => setIsBluetoothModalVisible(false)}
+            onDeviceConnect={handleBluetoothConnect}
+        />
       </View>
+
   );
 };
 
