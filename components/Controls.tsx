@@ -55,7 +55,7 @@ export const Controls = ({
 const styles = {
   container: `bg-white bg-opacity-90 rounded-lg shadow-lg p-4`,
   header: `text-lg font-semibold`,
-  buttonContainer: `flex-row gap-4`,
+  buttonContainer: `flex-row gap-4 mt-4 mb-2`,
   controlButton: `flex-1 flex-row items-center justify-center py-2.5 px-3 rounded-lg`,
   toggleButtonRunning: `bg-[#f59e0b]`,
   toggleButtonPaused: `bg-[#10b981]`,
