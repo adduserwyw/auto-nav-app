@@ -9,9 +9,14 @@ import {
 } from 'react-native';
 import { Bot, Navigation } from 'lucide-react-native';
 import Toast from 'react-native-toast-message';
+import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import ConnectionStatus from "~/components/ConnectionStatus";
 import {ModeSelector} from "~/components/ModeSelector";
 import {CarStatus} from "~/components/CarStatus";
+import {SpeedControl} from "~/components/SpeedControl";
+import {Controls} from "~/components/Controls";
+import {DirectionalControls} from "~/components/DirectionalControls";
+import {WaypointMap} from "~/components/WayPointMap";
 
 
 interface Coordinate {
@@ -95,85 +100,111 @@ return(
                            {/* Left Column */}
                            <View className="flex flex-column gap-6">
                                <ModeSelector mode={mode} onModeChange={handleModeChange} />
-                               <View className="flex flex-row">
+                               <View className="flex">
                                    <CarStatus {...carStatus}/>
                                </View>
                                <View>
-                                   {/*<SpeedControl*/}
-                                   {/*    onSpeedChange={handleSpeedChange}*/}
-                                   {/*    currentSpeed={speed}*/}
-                                   {/*/>*/}
+                                   <SpeedControl
+                                       onSpeedChange={handleSpeedChange}
+                                       currentSpeed={speed}
+                                   />
                                </View>
-                               {/*<Controls*/}
-                               {/*    isRunning={isRunning}*/}
-                               {/*    onToggleRunning={handleToggleRunning}*/}
-                               {/*    onEmergencyStop={handleEmergencyStop}*/}
-                               {/*/>*/}
-                               {/*{mode === "manual" && (*/}
-                               {/*    <DirectionalControls*/}
-                               {/*        onDirectionPress={handleDirectionPress}*/}
-                               {/*    />*/}
-                               {/*)}*/}
+                               <Controls
+                                   isRunning={isRunning}
+                                   onToggleRunning={handleToggleRunning}
+                                   onEmergencyStop={handleEmergencyStop}
+                               />
+                               {mode === "manual" && (
+                                   <DirectionalControls
+                                       onDirectionPress={handleDirectionPress}
+                                   />
+                               )}
                            </View>
 
 
                            {/*/!* Right Column *!/*/}
-                           {/*    /!*{mode === "waypoint" && (*!/*/}
-                           {/*    /!*    <View style={styles.rightColumn}>*!/*/}
-                           {/*    /!*      <MapView*!/*/}
-                           {/*    /!*          provider={PROVIDER_GOOGLE}*!/*/}
-                           {/*    /!*          style={styles.map}*!/*/}
-                           {/*    /!*          initialRegion={{*!/*/}
-                           {/*    /!*            latitude: 37.78825,*!/*/}
-                           {/*    /!*            longitude: -122.4324,*!/*/}
-                           {/*    /!*            latitudeDelta: 0.0922,*!/*/}
-                           {/*    /!*            longitudeDelta: 0.0421,*!/*/}
-                           {/*    /!*          }}*!/*/}
-                           {/*    /!*          onPress={(e) => {*!/*/}
-                           {/*    /!*            const coordinate = e.nativeEvent.coordinate;*!/*/}
-                           {/*    /!*            handleAddWaypoint({*!/*/}
-                           {/*    /!*              lat: coordinate.latitude,*!/*/}
-                           {/*    /!*              lng: coordinate.longitude*!/*/}
-                           {/*    /!*            });*!/*/}
-                           {/*    /!*          }}*!/*/}
-                           {/*    /!*      >*!/*/}
-                           {/*    /!*        {waypoints.map((wp, index) => (*!/*/}
-                           {/*    /!*            <Marker*!/*/}
-                           {/*    /!*                key={index}*!/*/}
-                           {/*    /!*                coordinate={{*!/*/}
-                           {/*    /!*                  latitude: wp.lat,*!/*/}
-                           {/*    /!*                  longitude: wp.lng*!/*/}
-                           {/*    /!*                }}*!/*/}
-                           {/*    /!*                title={`Waypoint ${index + 1}`}*!/*/}
-                           {/*    /!*                description={index === 0 ? "Current Target" : "Queued"}*!/*/}
-                           {/*    /!*            />*!/*/}
-                           {/*    /!*        ))}*!/*/}
-                           {/*    /!*      </MapView>*!/*/}
+                           <View className={`${styles.cardContainer} mt-6`} style={[mode === "manual" && style.disabled]}>
+                               {/* Waypoint Map */}
+                               <WaypointMap onAddWaypoint={handleAddWaypoint} />
+                               {/* Waypoints List */}
+                               <View style={style.panel}>
+                                   <Text style={style.heading}>Waypoints</Text>
+                                   {waypoints.length === 0 ? (
+                                       <Text style={style.noWaypointsText}>No waypoints added yet</Text>
+                                   ) : (
+                                       <ScrollView style={style.waypointsList}>
+                                           {waypoints.map((wp, index) => (
+                                               <View key={index} style={style.waypointItem}>
+                                                   <Text style={style.waypointText}>
+                                                       Point {index + 1}: ({wp.lat.toFixed(6)}, {wp.lng.toFixed(6)})
+                                                   </Text>
+                                                   <Text style={style.waypointStatus}>
+                                                       {index === 0 ? "Current Target" : "Queued"}
+                                                   </Text>
+                                               </View>
+                                           ))}
+                                       </ScrollView>
+                                   )}
+                               </View>
+                           </View>
 
-                           {/*    /!*      /!* Waypoints List *!/*!/*/}
-                           {/*    /!*      <View style={styles.waypointsContainer}>*!/*/}
-                           {/*    /!*        <Text style={styles.waypointsTitle}>Waypoints</Text>*!/*/}
-                           {/*    /!*        {waypoints.length === 0 ? (*!/*/}
-                           {/*    /!*            <Text style={styles.noWaypointsText}>*!/*/}
-                           {/*    /!*              No waypoints added yet*!/*/}
-                           {/*    /!*            </Text>*!/*/}
-                           {/*    /!*        ) : (*!/*/}
-                           {/*    /!*            waypoints.map((wp, index) => (*!/*/}
-                           {/*    /!*                <View key={index} style={styles.waypointItem}>*!/*/}
-                           {/*    /!*                  <Text style={styles.waypointText}>*!/*/}
-                           {/*    /!*                    Point {index + 1}: ({wp.lat.toFixed(6)}, {wp.lng.toFixed(6)})*!/*/}
-                           {/*    /!*                  </Text>*!/*/}
-                           {/*    /!*                  <Text style={styles.waypointStatus}>*!/*/}
-                           {/*    /!*                    {index === 0 ? "Current Target" : "Queued"}*!/*/}
-                           {/*    /!*                  </Text>*!/*/}
-                           {/*    /!*                </View>*!/*/}
-                           {/*    /!*            ))*!/*/}
-                           {/*    /!*        )}*!/*/}
-                           {/*    /!*      </View>*!/*/}
-                           {/*    /!*    </View>*!/*/}
-                           {/*    /!*)}*!/*/}
+                           {/*    {mode === "waypoint" && (*/}
+                           {/*        <View className={styles.rightColumn}>*/}
+                           {/*          <MapView*/}
+                           {/*              provider={PROVIDER_GOOGLE}*/}
+                           {/*              className={styles.map}*/}
+                           {/*              initialRegion={{*/}
+                           {/*                latitude: 37.78825,*/}
+                           {/*                longitude: -122.4324,*/}
+                           {/*                latitudeDelta: 0.0922,*/}
+                           {/*                longitudeDelta: 0.0421,*/}
+                           {/*              }}*/}
+                           {/*              onPress={(e) => {*/}
+                           {/*                const coordinate = e.nativeEvent.coordinate;*/}
+                           {/*                handleAddWaypoint({*/}
+                           {/*                  lat: coordinate.latitude,*/}
+                           {/*                  lng: coordinate.longitude*/}
+                           {/*                });*/}
+                           {/*              }}*/}
+                           {/*          >*/}
+                           {/*            {waypoints.map((wp, index) => (*/}
+                           {/*                <Marker*/}
+                           {/*                    key={index}*/}
+                           {/*                    coordinate={{*/}
+                           {/*                      latitude: wp.lat,*/}
+                           {/*                      longitude: wp.lng*/}
+                           {/*                    }}*/}
+                           {/*                    title={`Waypoint ${index + 1}`}*/}
+                           {/*                    description={index === 0 ? "Current Target" : "Queued"}*/}
+                           {/*                />*/}
+                           {/*            ))}*/}
+                           {/*          </MapView>*/}
+
+                           {/*          /!* Waypoints List *!/*/}
+                           {/*          <View className={styles.waypointsContainer}>*/}
+                           {/*            <Text className={styles.waypointsTitle}>Waypoints</Text>*/}
+                           {/*            {waypoints.length === 0 ? (*/}
+                           {/*                <Text className={styles.noWaypointsText}>*/}
+                           {/*                  No waypoints added yet*/}
+                           {/*                </Text>*/}
+                           {/*            ) : (*/}
+                           {/*                waypoints.map((wp, index) => (*/}
+                           {/*                    <View key={index} className={styles.waypointItem}>*/}
+                           {/*                      <Text className={styles.waypointText}>*/}
+                           {/*                        Point {index + 1}: ({wp.lat.toFixed(6)}, {wp.lng.toFixed(6)})*/}
+                           {/*                      </Text>*/}
+                           {/*                      <Text className={styles.waypointStatus}>*/}
+                           {/*                        {index === 0 ? "Current Target" : "Queued"}*/}
+                           {/*                      </Text>*/}
+                           {/*                    </View>*/}
+                           {/*                ))*/}
+                           {/*            )}*/}
+                           {/*          </View>*/}
+                           {/*        </View>*/}
+                           {/*    )}*/}
                        </View>
                        </ScrollView>
+            <Toast/>
                        </SafeAreaView>
 );
 };
@@ -189,12 +220,50 @@ const styles = {
   headerTitle: `text-xl font-bold text-[#8b5cf6]`,
   mainContent: `flex-col gap-4`,
   leftColumn: `gap-4`,
-  rightColumn: `gap-4`,
-  map: `h-[300px] w-full rounded-lg`,
-  waypointsContainer: `bg-white rounded-lg p-4 shadow-md`,
-  waypointsTitle: `text-lg font-semibold mb-3`,
-  noWaypointsText: `text-gray-500`,
-  waypointItem: `flex-row justify-between items-center bg-[#f9fafb] p-2 rounded-md my-1`,
-  waypointText: `text-sm`,
-  waypointStatus: `text-xs text-gray-500`
+    cardContainer: `bg-white bg-opacity-90 rounded-lg shadow-lg p-4`,
 };
+
+const style = StyleSheet.create({
+    // container: {
+    //     flex: 1,
+    //     padding: 16,
+    // },
+    disabled: {
+        opacity: 0.5,
+        pointerEvents: "none",
+    },
+    panel: {
+        backgroundColor: "rgba(255, 255, 255, 0.9)",
+        borderRadius: 8,
+        padding: 16,
+        marginTop: 16,
+    },
+    heading: {
+        fontSize: 18,
+        fontWeight: "600",
+        marginBottom: 12,
+    },
+    noWaypointsText: {
+        color: "gray",
+        fontSize: 14,
+    },
+    waypointsList: {
+        marginTop: 8,
+    },
+    waypointItem: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        padding: 8,
+        backgroundColor: "#f9f9f9",
+        borderRadius: 6,
+        marginBottom: 8,
+    },
+    waypointText: {
+        fontSize: 14,
+    },
+    waypointStatus: {
+        fontSize: 12,
+        color: "gray",
+    },
+});
