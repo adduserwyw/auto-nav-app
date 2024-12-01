@@ -10,6 +10,8 @@ import {
 import { Bot, Navigation } from 'lucide-react-native';
 import Toast from 'react-native-toast-message';
 import ConnectionStatus from "~/components/ConnectionStatus";
+import {ModeSelector} from "~/components/ModeSelector";
+import {CarStatus} from "~/components/CarStatus";
 
 
 interface Coordinate {
@@ -92,9 +94,9 @@ return(
                        <View className="flex flex-column mt-6">
                            {/* Left Column */}
                            <View className="flex flex-column gap-6">
-                               {/*<ModeSelector mode={mode} onModeChange={handleModeChange} />*/}
+                               <ModeSelector mode={mode} onModeChange={handleModeChange} />
                                <View className="flex flex-row">
-                                   {/*<CarStatus {...carStatus}/>*/}
+                                   <CarStatus {...carStatus}/>
                                </View>
                                <View>
                                    {/*<SpeedControl*/}
