@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { Bot, Navigation } from 'lucide-react-native';
 import Toast from 'react-native-toast-message';
+import ConnectionStatus from "~/components/ConnectionStatus";
 
 
 interface Coordinate {
@@ -84,6 +85,91 @@ return(
                                <Text className={styles.headerTitle}>Auto-Nav Explorer</Text>
                                <Navigation color="#8b5cf6" size={24} />
                            </View>
+                           <ConnectionStatus isConnected={isConnected} />
+                       </View>
+
+                       {/* Main Content */}
+                       <View className="flex flex-column mt-6">
+                           {/* Left Column */}
+                           <View className="flex flex-column gap-6">
+                               {/*<ModeSelector mode={mode} onModeChange={handleModeChange} />*/}
+                               <View className="flex flex-row">
+                                   {/*<CarStatus {...carStatus}/>*/}
+                               </View>
+                               <View>
+                                   {/*<SpeedControl*/}
+                                   {/*    onSpeedChange={handleSpeedChange}*/}
+                                   {/*    currentSpeed={speed}*/}
+                                   {/*/>*/}
+                               </View>
+                               {/*<Controls*/}
+                               {/*    isRunning={isRunning}*/}
+                               {/*    onToggleRunning={handleToggleRunning}*/}
+                               {/*    onEmergencyStop={handleEmergencyStop}*/}
+                               {/*/>*/}
+                               {/*{mode === "manual" && (*/}
+                               {/*    <DirectionalControls*/}
+                               {/*        onDirectionPress={handleDirectionPress}*/}
+                               {/*    />*/}
+                               {/*)}*/}
+                           </View>
+
+
+                           {/*/!* Right Column *!/*/}
+                           {/*    /!*{mode === "waypoint" && (*!/*/}
+                           {/*    /!*    <View style={styles.rightColumn}>*!/*/}
+                           {/*    /!*      <MapView*!/*/}
+                           {/*    /!*          provider={PROVIDER_GOOGLE}*!/*/}
+                           {/*    /!*          style={styles.map}*!/*/}
+                           {/*    /!*          initialRegion={{*!/*/}
+                           {/*    /!*            latitude: 37.78825,*!/*/}
+                           {/*    /!*            longitude: -122.4324,*!/*/}
+                           {/*    /!*            latitudeDelta: 0.0922,*!/*/}
+                           {/*    /!*            longitudeDelta: 0.0421,*!/*/}
+                           {/*    /!*          }}*!/*/}
+                           {/*    /!*          onPress={(e) => {*!/*/}
+                           {/*    /!*            const coordinate = e.nativeEvent.coordinate;*!/*/}
+                           {/*    /!*            handleAddWaypoint({*!/*/}
+                           {/*    /!*              lat: coordinate.latitude,*!/*/}
+                           {/*    /!*              lng: coordinate.longitude*!/*/}
+                           {/*    /!*            });*!/*/}
+                           {/*    /!*          }}*!/*/}
+                           {/*    /!*      >*!/*/}
+                           {/*    /!*        {waypoints.map((wp, index) => (*!/*/}
+                           {/*    /!*            <Marker*!/*/}
+                           {/*    /!*                key={index}*!/*/}
+                           {/*    /!*                coordinate={{*!/*/}
+                           {/*    /!*                  latitude: wp.lat,*!/*/}
+                           {/*    /!*                  longitude: wp.lng*!/*/}
+                           {/*    /!*                }}*!/*/}
+                           {/*    /!*                title={`Waypoint ${index + 1}`}*!/*/}
+                           {/*    /!*                description={index === 0 ? "Current Target" : "Queued"}*!/*/}
+                           {/*    /!*            />*!/*/}
+                           {/*    /!*        ))}*!/*/}
+                           {/*    /!*      </MapView>*!/*/}
+
+                           {/*    /!*      /!* Waypoints List *!/*!/*/}
+                           {/*    /!*      <View style={styles.waypointsContainer}>*!/*/}
+                           {/*    /!*        <Text style={styles.waypointsTitle}>Waypoints</Text>*!/*/}
+                           {/*    /!*        {waypoints.length === 0 ? (*!/*/}
+                           {/*    /!*            <Text style={styles.noWaypointsText}>*!/*/}
+                           {/*    /!*              No waypoints added yet*!/*/}
+                           {/*    /!*            </Text>*!/*/}
+                           {/*    /!*        ) : (*!/*/}
+                           {/*    /!*            waypoints.map((wp, index) => (*!/*/}
+                           {/*    /!*                <View key={index} style={styles.waypointItem}>*!/*/}
+                           {/*    /!*                  <Text style={styles.waypointText}>*!/*/}
+                           {/*    /!*                    Point {index + 1}: ({wp.lat.toFixed(6)}, {wp.lng.toFixed(6)})*!/*/}
+                           {/*    /!*                  </Text>*!/*/}
+                           {/*    /!*                  <Text style={styles.waypointStatus}>*!/*/}
+                           {/*    /!*                    {index === 0 ? "Current Target" : "Queued"}*!/*/}
+                           {/*    /!*                  </Text>*!/*/}
+                           {/*    /!*                </View>*!/*/}
+                           {/*    /!*            ))*!/*/}
+                           {/*    /!*        )}*!/*/}
+                           {/*    /!*      </View>*!/*/}
+                           {/*    /!*    </View>*!/*/}
+                           {/*    /!*)}*!/*/}
                        </View>
                        </ScrollView>
                        </SafeAreaView>
