@@ -14,7 +14,8 @@ export const SpeedControl = ({ onSpeedChange, currentSpeed }: SpeedControlProps)
         Toast.show({
             type: 'info',
             text1: 'Speed Control',
-            text2: `Speed set to ${value} km/h`
+            text2: `Speed set to ${value} km/h`,
+            position: 'bottom'
         });
         console.log("Speed changed:", value);
     };
@@ -27,11 +28,12 @@ export const SpeedControl = ({ onSpeedChange, currentSpeed }: SpeedControlProps)
                 minimumValue={0}
                 maximumValue={120}
                 step={1}
+                style={{height: 40}}
                 value={currentSpeed}
                 onValueChange={handleSpeedChange}
-                minimumTrackTintColor="#007bff"
-                maximumTrackTintColor="#d3d3d3"
-                thumbTintColor="#007bff"
+                minimumTrackTintColor="#8b5cf6"
+                maximumTrackTintColor="#8b5cf6"
+                thumbTintColor="#8b5cf6"
             />
         </View>
     );

@@ -35,7 +35,7 @@ export const ConnectionStatus: React.FC<ConnectionStatusProps> = ({ isConnected 
     Toast.show({
       type: 'info',
       text1: `WiFi ${newWifiState ? 'enabled' : 'disabled'}`,
-      position: 'top'
+      position: 'bottom'
     });
 
     console.log("WiFi mode changed:", newWifiState);
@@ -49,7 +49,7 @@ export const ConnectionStatus: React.FC<ConnectionStatusProps> = ({ isConnected 
       Toast.show({
         type: 'info',
         text1: 'Bluetooth disabled',
-        position: 'top'
+        position: 'bottom'
       });
     }
   };
@@ -57,9 +57,9 @@ export const ConnectionStatus: React.FC<ConnectionStatusProps> = ({ isConnected 
   const handleBluetoothConnect = () => {
     setIsBluetoothEnabled(true);
     Toast.show({
-      type: 'success',
+      type: 'info',
       text1: 'Bluetooth device connecting...',
-      position: 'top'
+      position: 'bottom'
     });
   };
 
