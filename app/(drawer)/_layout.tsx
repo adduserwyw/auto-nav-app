@@ -10,7 +10,12 @@ const DrawerLayout = () => (
       name="index"
       options={{
         drawerLabel: 'Home',
-        drawerIcon: ({ size, color }) => <Ionicons name="home-outline" size={size} color={color} />,
+          drawerLabelStyle: {
+            color: "#8b5cf6",
+            fontWeight: "bold",
+            },
+          drawerActiveBackgroundColor: "#f3e8ff",
+        drawerIcon: ({ size, color }) => <Ionicons name="home-outline" size={size} color={"#8b5cf6"} />,
       }}
     />
   </Drawer>
