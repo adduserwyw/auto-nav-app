@@ -41,7 +41,7 @@ const Index = () => {
         Toast.show({
             type: type === 'success' ? 'success' : 'error',
             text1: description,
-            position: 'top',
+            position: 'bottom',
         });
     };
 
@@ -220,7 +220,7 @@ const styles = {
   headerTitle: `text-xl font-bold text-[#8b5cf6]`,
   mainContent: `flex-col gap-4`,
   leftColumn: `gap-4`,
-    cardContainer: `bg-white bg-opacity-90 rounded-lg shadow-lg p-4`,
+  cardContainer: `bg-white bg-opacity-90 rounded-lg shadow-lg p-4`,
 };
 
 const style = StyleSheet.create({

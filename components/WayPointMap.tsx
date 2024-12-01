@@ -104,7 +104,7 @@ export const WaypointMap = ({ onAddWaypoint }: WaypointMapProps) => {
                 })}
 
                 <View style={styles.centerPin}>
-                    <MapPin color="#007AFF" size={24} style={{ opacity: 0.25 }} />
+                    <MapPin color="#8b5cf6" size={24} style={{ opacity: 0.75 }} />
                 </View>
             </Pressable>
 
@@ -117,7 +117,7 @@ export const WaypointMap = ({ onAddWaypoint }: WaypointMapProps) => {
 
 const styles = StyleSheet.create({
     container: {
-        // padding: 16,
+        padding: 4,
         // backgroundColor: '#FFFFFF',
         // borderRadius: 12,
         // shadowColor: '#000',

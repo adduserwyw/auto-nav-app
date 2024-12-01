@@ -31,7 +31,6 @@ export default function Home() {
                 },
             }}
         />
-
       {/*<Stack.Screen options={{ headerTitleStyle: {display: 'none'},headerTransparent: true }} />*/}
         <QueryClientProvider client={queryClient}>
             <ToastProvider>
