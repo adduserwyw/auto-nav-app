@@ -8,7 +8,7 @@ interface ModeSelectorProps {
 
 export const ModeSelector = ({ mode, onModeChange }: ModeSelectorProps) => {
     return (
-        <View style={styles.container}>
+        <View className={style.container}>
             <Text style={styles.title}>Operation Mode</Text>
 
             <View style={styles.radioGroup}>
@@ -84,3 +84,7 @@ const styles = StyleSheet.create({
         color: '#1f2937',
     },
 });
+
+const style = {
+    container: `bg-white bg-opacity-90 rounded-lg shadow-lg p-4`,
+}

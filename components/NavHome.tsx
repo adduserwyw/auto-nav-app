@@ -86,12 +86,12 @@ return(
         <SafeAreaView className={styles.container}>
                    <ScrollView className={styles.scrollContainer}>
                        {/* Header */}
-                       <View className="mt-20 gap-6">
-                           <View className={styles.headerTitleContainer}>
-                               <Bot color="#8b5cf6" size={24} />
-                               <Text className={styles.headerTitle}>Auto-Nav Explorer</Text>
-                               <Navigation color="#8b5cf6" size={24} />
-                           </View>
+                       <View className="mt-16 gap-6">
+                           {/*<View className={styles.headerTitleContainer}>*/}
+                           {/*    <Bot color="#8b5cf6" size={24} />*/}
+                           {/*    <Text className={styles.headerTitle}>Auto-Nav Explorer</Text>*/}
+                           {/*    <Navigation color="#8b5cf6" size={24} />*/}
+                           {/*</View>*/}
                            <ConnectionStatus isConnected={isConnected} />
                        </View>
 
