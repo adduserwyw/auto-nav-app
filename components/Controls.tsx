@@ -1,24 +1,45 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Pause, Play, Square } from 'lucide-react-native';
+import {Device} from "react-native-ble-plx";
+import {useBluetoothControl} from "~/hooks/useBluetoothControl";
 
 interface ControlsProps {
   isRunning: boolean;
   onToggleRunning: () => void;
   onEmergencyStop: () => void;
+  connectedDevice: Device | null;
 }
 
 export const Controls = ({
                            isRunning,
                            onToggleRunning,
-                           onEmergencyStop
+                           onEmergencyStop,
+    connectedDevice
                          }: ControlsProps) => {
-  return (
+    const {
+        handleStopCommand,
+        handleToggleRunning
+    } = useBluetoothControl(connectedDevice);
+
+
+    const handleStop = async () => {
+        await handleStopCommand();
+        onEmergencyStop();
+    };
+
+    const handleRunning = async () => {
+        await handleToggleRunning(isRunning);
+        onToggleRunning();
+    };
+
+
+    return (
       <View className={styles.container}>
         <Text className={styles.header}>Controls</Text>
         <View className={styles.buttonContainer}>
           <TouchableOpacity
-              onPress={onToggleRunning}
+              onPress={handleRunning}
               className={`
                 ${styles.controlButton}
                 ${isRunning ? styles.toggleButtonRunning : styles.toggleButtonPaused}
@@ -38,7 +59,7 @@ export const Controls = ({
           </TouchableOpacity>
 
           <TouchableOpacity
-              onPress={onEmergencyStop}
+              onPress={handleStop}
               className={`
                 ${styles.controlButton}
                 ${styles.stopButton}
