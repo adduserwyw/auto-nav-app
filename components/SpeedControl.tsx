@@ -21,7 +21,8 @@ export const SpeedControl = ({ onSpeedChange, currentSpeed }: SpeedControlProps)
     };
 
     return (
-        <View className="bg-white bg-opacity-90 rounded-lg shadow-lg p-4">
+        <View className="bg-white bg-opacity-90 rounded-lg p-4">
+            {/*<View className="bg-white bg-opacity-90 rounded-lg shadow-lg p-4">*/}
             <Text className="text-lg font-bold mb-2">Speed Control</Text>
             <Text className="text-center text-base mb-2">{currentSpeed} km/h</Text>
             <Slider
