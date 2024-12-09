@@ -1,5 +1,6 @@
-import { Platform, PermissionsAndroid } from "react-native";
+import { PermissionsAndroid, Platform } from "react-native";
 import * as ExpoDevice from "expo-device";
+
 
 const requestAndroid31Permissions = async () => {
   const bluetoothScanPermission = await PermissionsAndroid.request(
@@ -33,7 +34,6 @@ const requestAndroid31Permissions = async () => {
     fineLocationPermission === "granted"
   );
 };
-
 export const requestPermissions = async () => {
   if (Platform.OS === "android") {
     if ((ExpoDevice.platformApiLevel ?? -1) < 31) {
