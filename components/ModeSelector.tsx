@@ -1,12 +1,17 @@
 import React from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
+import {useBluetoothControl} from "~/hooks/useBluetoothControl";
+import {Device} from "react-native-ble-plx";
 
 interface ModeSelectorProps {
-    mode: "manual" | "waypoint";
-    onModeChange: (mode: "manual" | "waypoint") => void;
+    mode: "manual" | "waypoint"| "disconnected";
+    onModeChange: (mode: "manual" | "waypoint"|"disconnected") => void;
+    connectedDevice: Device | null;
 }
 
-export const ModeSelector = ({ mode, onModeChange }: ModeSelectorProps) => {
+export const ModeSelector = ({ mode, onModeChange, connectedDevice }: ModeSelectorProps) => {
+    const { handleDirectionCommand } = useBluetoothControl(connectedDevice);
+
     return (
         <View className={style.container}>
             <Text style={styles.title}>Operation Mode</Text>
@@ -14,7 +19,7 @@ export const ModeSelector = ({ mode, onModeChange }: ModeSelectorProps) => {
             <View style={styles.radioGroup}>
                 <Pressable
                     style={styles.radioOption}
-                    onPress={() => onModeChange("manual")}
+                    onPress={() => {onModeChange("manual"); handleDirectionCommand("manual")}}
                 >
                     <View style={styles.radioOuterCircle}>
                         {mode === "manual" && <View style={styles.radioInnerCircle} />}
@@ -24,7 +29,7 @@ export const ModeSelector = ({ mode, onModeChange }: ModeSelectorProps) => {
 
                 <Pressable
                     style={styles.radioOption}
-                    onPress={() => onModeChange("waypoint")}
+                    onPress={() => {onModeChange("waypoint");handleDirectionCommand("sendWaypoints")}}
                 >
                     <View style={styles.radioOuterCircle}>
                         {mode === "waypoint" && <View style={styles.radioInnerCircle} />}

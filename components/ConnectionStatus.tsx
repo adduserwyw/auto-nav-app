@@ -7,10 +7,12 @@ import {
 } from "react-native";
 import { Wifi, WifiOff, Bluetooth, BluetoothOff, Bot } from "lucide-react-native";
 import Toast from 'react-native-toast-message';
-import {BluetoothModal, ConnectionStatusComponent} from './BluetoothModal';
+import {BluetoothModal} from './BluetoothModal';
+import {Device} from "react-native-ble-plx";
 
 interface ConnectionStatusProps {
   isConnected: boolean;
+  onDeviceConnect: (device: Device) => void;
 }
 interface ConnectionStatus {
   isConnected: boolean;
@@ -18,8 +20,8 @@ interface ConnectionStatus {
   error: string | null;
 }
 
-export const ConnectionStatus: React.FC<ConnectionStatusProps> = ({ isConnected }) => {
-  const [isWifiEnabled, setIsWifiEnabled] = useState(true);
+export const ConnectionStatus: React.FC<ConnectionStatusProps> = ({ isConnected,onDeviceConnect }) => {
+  const [isWifiEnabled, setIsWifiEnabled] = useState(false);
   const [isBluetoothEnabled, setIsBluetoothEnabled] = useState(false);
   const [isBluetoothModalVisible, setIsBluetoothModalVisible] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>({
@@ -54,14 +56,27 @@ export const ConnectionStatus: React.FC<ConnectionStatusProps> = ({ isConnected 
     }
   };
 
-  const handleBluetoothConnect = () => {
-    setIsBluetoothEnabled(true);
-    Toast.show({
-      type: 'info',
-      text1: 'Bluetooth device connecting...',
-      position: 'bottom'
-    });
+  const handleBluetoothConnect = (ConnectionStatus) => {
+    if(ConnectionStatus.isConnected) {
+      setIsBluetoothEnabled(true);
+      Toast.show({
+        type: 'success',
+        text1: 'Bluetooth device connected!',
+        position: 'bottom'
+      });
+    }else{
+      Toast.show({
+        type: 'error',
+        text1: `${ConnectionStatus.error}`,
+        position: 'bottom'
+      });
+    }
   };
+
+  const handleDeviceConnect = (device: Device) => {
+    onDeviceConnect(device);
+  };
+
 
   return (
       <View className={styles.container}>
@@ -72,9 +87,11 @@ export const ConnectionStatus: React.FC<ConnectionStatusProps> = ({ isConnected 
 
         <View className={styles.connectionsContainer}>
           <View className={styles.buttonGroup}>
+            {/*handle wifi connect for now it's disabled*/}
             <TouchableOpacity
                 onPress={handleWifiChange}
                 className={`
+                pointer-events-none
                   ${styles.connectionButton}
                   ${isWifiEnabled ? styles.activeButton : styles.inactiveButton}
                 `}
@@ -91,7 +108,7 @@ export const ConnectionStatus: React.FC<ConnectionStatusProps> = ({ isConnected 
                 WiFi
               </Text>
             </TouchableOpacity>
-
+            {/*handle bluetooth connect*/}
             <TouchableOpacity
                 onPress={handleBluetoothChange}
                 className={`
@@ -134,7 +151,8 @@ export const ConnectionStatus: React.FC<ConnectionStatusProps> = ({ isConnected 
         <BluetoothModal
             isVisible={isBluetoothModalVisible}
             onClose={() => setIsBluetoothModalVisible(false)}
-            onDeviceConnect={handleBluetoothConnect}
+            onDeviceConnectionStatus={handleBluetoothConnect}
+            onDeviceConnect={handleDeviceConnect}
         />
       </View>
 
