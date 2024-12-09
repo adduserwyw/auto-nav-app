@@ -7,16 +7,15 @@ import {
     TouchableOpacity,
     StyleSheet
 } from 'react-native';
-import { Bot, Navigation } from 'lucide-react-native';
 import Toast from 'react-native-toast-message';
-import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import ConnectionStatus from "~/components/ConnectionStatus";
 import {ModeSelector} from "~/components/ModeSelector";
 import {CarStatus} from "~/components/CarStatus";
 import {SpeedControl} from "~/components/SpeedControl";
 import {Controls} from "~/components/Controls";
-import {DirectionalControls} from "~/components/DirectionalControls";
+import {DirectionControls} from "~/components/DirectionControls";
 import {WaypointMap} from "~/components/WayPointMap";
+import {Device} from "react-native-ble-plx";
 
 
 interface Coordinate {
@@ -26,15 +25,27 @@ interface Coordinate {
 
 const Index = () => {
  const [isConnected, setIsConnected] = useState(false);
+ const [connectedDevice, setConnectedDevice] = useState<Device | null>(null);
+
     const [isRunning, setIsRunning] = useState(false);
     const [waypoints, setWaypoints] = useState<Coordinate[]>([]);
     const [speed, setSpeed] = useState(15);
-    const [mode, setMode] = useState<"manual" | "waypoint">("manual");
+    const [mode, setMode] = useState<"manual" | "waypoint" | "disconnected">("disconnected");
+
 
     const carStatus = {
         battery: 85,
         obstacleDistance: null,
         speed: speed,
+    };
+
+    const handleDeviceConnect = (device: Device) => {
+        if(device) {
+            if(mode==="disconnected") {
+                setMode("manual");
+            }
+            setConnectedDevice(device);
+        }
     };
 
     const showToast = (description: string, type: 'success' | 'error' = 'success') => {
@@ -48,6 +59,11 @@ const Index = () => {
     const handleAddWaypoint = (coordinate: Coordinate) => {
         setWaypoints([...waypoints, coordinate]);
         showToast("Waypoint added successfully");
+    };
+
+    const handleClearWaypoints = () => {
+        setWaypoints([]);
+        showToast("Waypoint cleared successfully");
     };
 
     const handleToggleRunning = () => {
@@ -82,28 +98,24 @@ const Index = () => {
         showToast(`Switched to ${newMode} mode`);
     };
 
+
 return(
         <SafeAreaView className={styles.container}>
                    <ScrollView className={styles.scrollContainer}>
                        {/* Header */}
                        <View className="mt-16 gap-6">
-                           {/*<View className={styles.headerTitleContainer}>*/}
-                           {/*    <Bot color="#8b5cf6" size={24} />*/}
-                           {/*    <Text className={styles.headerTitle}>Auto-Nav Explorer</Text>*/}
-                           {/*    <Navigation color="#8b5cf6" size={24} />*/}
-                           {/*</View>*/}
-                           <ConnectionStatus isConnected={isConnected} />
+                           <ConnectionStatus isConnected={isConnected} onDeviceConnect={handleDeviceConnect}/>
                        </View>
-
                        {/* Main Content */}
+                       {/*<View className="flex flex-column mt-6" style={[mode != "disconnected" && style.disabled]}>*/}
                        <View className="flex flex-column mt-6">
                            {/* Left Column */}
                            <View className="flex flex-column gap-6">
-                               <ModeSelector mode={mode} onModeChange={handleModeChange} />
-                               <View className="flex">
+                               <ModeSelector mode={mode} onModeChange={handleModeChange} onDeviceConnect={handleDeviceConnect} />
+                               <View className="flex" style={[style.disabled]}>
                                    <CarStatus {...carStatus}/>
                                </View>
-                               <View>
+                               <View  style={[style.disabled]}>
                                    <SpeedControl
                                        onSpeedChange={handleSpeedChange}
                                        currentSpeed={speed}
@@ -113,19 +125,21 @@ return(
                                    isRunning={isRunning}
                                    onToggleRunning={handleToggleRunning}
                                    onEmergencyStop={handleEmergencyStop}
+                                   onDeviceConnect={handleDeviceConnect}
                                />
                                {mode === "manual" && (
-                                   <DirectionalControls
+                                   <DirectionControls
                                        onDirectionPress={handleDirectionPress}
+                                       connectedDevice={connectedDevice}
                                    />
                                )}
                            </View>
 
 
                            {/*/!* Right Column *!/*/}
-                           <View className={`${styles.cardContainer} mt-6`} style={[mode === "manual" && style.disabled]}>
+                           <View className={`${styles.cardContainer} mt-6`} style={[mode != "waypoint" && style.disabled]}>
                                {/* Waypoint Map */}
-                               <WaypointMap onAddWaypoint={handleAddWaypoint} />
+                               <WaypointMap onAddWaypoint={handleAddWaypoint} onClearWaypoints={handleClearWaypoints}/>
                                {/* Waypoints List */}
                                <View style={style.panel}>
                                    <Text style={style.heading}>Waypoints</Text>
@@ -147,61 +161,6 @@ return(
                                    )}
                                </View>
                            </View>
-
-                           {/*    {mode === "waypoint" && (*/}
-                           {/*        <View className={styles.rightColumn}>*/}
-                           {/*          <MapView*/}
-                           {/*              provider={PROVIDER_GOOGLE}*/}
-                           {/*              className={styles.map}*/}
-                           {/*              initialRegion={{*/}
-                           {/*                latitude: 37.78825,*/}
-                           {/*                longitude: -122.4324,*/}
-                           {/*                latitudeDelta: 0.0922,*/}
-                           {/*                longitudeDelta: 0.0421,*/}
-                           {/*              }}*/}
-                           {/*              onPress={(e) => {*/}
-                           {/*                const coordinate = e.nativeEvent.coordinate;*/}
-                           {/*                handleAddWaypoint({*/}
-                           {/*                  lat: coordinate.latitude,*/}
-                           {/*                  lng: coordinate.longitude*/}
-                           {/*                });*/}
-                           {/*              }}*/}
-                           {/*          >*/}
-                           {/*            {waypoints.map((wp, index) => (*/}
-                           {/*                <Marker*/}
-                           {/*                    key={index}*/}
-                           {/*                    coordinate={{*/}
-                           {/*                      latitude: wp.lat,*/}
-                           {/*                      longitude: wp.lng*/}
-                           {/*                    }}*/}
-                           {/*                    title={`Waypoint ${index + 1}`}*/}
-                           {/*                    description={index === 0 ? "Current Target" : "Queued"}*/}
-                           {/*                />*/}
-                           {/*            ))}*/}
-                           {/*          </MapView>*/}
-
-                           {/*          /!* Waypoints List *!/*/}
-                           {/*          <View className={styles.waypointsContainer}>*/}
-                           {/*            <Text className={styles.waypointsTitle}>Waypoints</Text>*/}
-                           {/*            {waypoints.length === 0 ? (*/}
-                           {/*                <Text className={styles.noWaypointsText}>*/}
-                           {/*                  No waypoints added yet*/}
-                           {/*                </Text>*/}
-                           {/*            ) : (*/}
-                           {/*                waypoints.map((wp, index) => (*/}
-                           {/*                    <View key={index} className={styles.waypointItem}>*/}
-                           {/*                      <Text className={styles.waypointText}>*/}
-                           {/*                        Point {index + 1}: ({wp.lat.toFixed(6)}, {wp.lng.toFixed(6)})*/}
-                           {/*                      </Text>*/}
-                           {/*                      <Text className={styles.waypointStatus}>*/}
-                           {/*                        {index === 0 ? "Current Target" : "Queued"}*/}
-                           {/*                      </Text>*/}
-                           {/*                    </View>*/}
-                           {/*                ))*/}
-                           {/*            )}*/}
-                           {/*          </View>*/}
-                           {/*        </View>*/}
-                           {/*    )}*/}
                        </View>
                        </ScrollView>
             <Toast/>
