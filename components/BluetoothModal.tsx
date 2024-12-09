@@ -6,10 +6,13 @@ import {
     TouchableOpacity,
     ActivityIndicator,
     FlatList,
-    StyleSheet,
+    StyleSheet, Button, ScrollView,
 } from 'react-native';
 import { Device, BleManager } from 'react-native-ble-plx';
 import { requestPermissions } from "~/hooks/useBLE";
+
+
+export const bleManager = new BleManager();
 
 interface ConnectionStatus {
     isConnected: boolean;
@@ -20,7 +23,8 @@ interface ConnectionStatus {
 interface BluetoothModalProps {
     isVisible: boolean;
     onClose: () => void;
-    onDeviceConnect: (status: ConnectionStatus) => void;
+    onDeviceConnectionStatus: (status: ConnectionStatus) => void;
+    onDeviceConnect:(device: Device) => void;
 }
 
 export const ConnectionStatusComponent: React.FC<{ status: ConnectionStatus }> = ({ status }) => {
@@ -49,10 +53,12 @@ export const ConnectionStatusComponent: React.FC<{ status: ConnectionStatus }> =
 export const BluetoothModal: React.FC<BluetoothModalProps> = ({
                                                                   isVisible,
                                                                   onClose,
+                                                                  onDeviceConnectionStatus,
                                                                   onDeviceConnect,
                                                               }) => {
     const [isScanning, setIsScanning] = useState(false);
-    const [devices, setDevices] = useState<Set<Device>>(new Set());
+    const [allDevices, setAllDevices] = useState<Device[]>([]);
+    const [connectedDevice, setConnectedDevice] = useState<Device | null>(null);
     const [selectedDevice, setSelectedDevice] = useState<Device | null>(null);
     const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>({
         isConnected: false,
@@ -60,74 +66,76 @@ export const BluetoothModal: React.FC<BluetoothModalProps> = ({
         error: null,
     });
     const [isConnecting, setIsConnecting] = useState(false);
-    const bleManager = new BleManager();
 
-    const startScanning = async () => {
-        try {
-            const permission = await requestPermissions();
-            if (!permission) {
-                setConnectionStatus({
-                    isConnected: false,
-                    deviceName: null,
-                    error: 'Bluetooth permission denied',
-                });
-                return;
-            }
 
-            setIsScanning(true);
-            setDevices(new Set());
-            setConnectionStatus({
-                isConnected: false,
-                deviceName: null,
-                error: null,
-            });
+    const isDuplicateDevice = (devices: Device[], nextDevice: Device): boolean => {
+        const index = devices.findIndex((device) => nextDevice.id === device.id);
+        return index > -1;
+    };
 
-            bleManager.startDeviceScan(null, null, (error, device) => {
-                if (error) {
-                    console.log('Scan error:', error);
-                    setIsScanning(false);
+
+    function startScanning() {
+            try {
+                const permission = requestPermissions();
+                if (!permission) {
                     setConnectionStatus({
                         isConnected: false,
                         deviceName: null,
-                        error: `Scan error: ${error.message}`,
+                        error: 'Bluetooth permission denied',
                     });
                     return;
                 }
-
-                if (device) {
-                    setDevices(prev => new Set([...prev, device]));
-                }
-            });
-
-            setTimeout(() => {
-                bleManager.stopDeviceScan();
+        console.log("Scanning for peripherals...");
+                setIsScanning(true);
+        bleManager.startDeviceScan(null, null, (error, device) => {
+            if (error) {
+                console.error(error);
+            }
+            if (device) {
+                setAllDevices((prevState: Device[]) => {
+                    if (!isDuplicateDevice(prevState, device)) {
+                        return [...prevState, device];
+                    }
+                    return prevState;
+                });
+            }
+        });
+                setTimeout(() => {
+                    bleManager.stopDeviceScan();
+                    setIsScanning(false);
+                }, 10000);
+            } catch (error) {
+                console.log('Error starting scan:', error);
                 setIsScanning(false);
-            }, 10000);
-        } catch (error) {
-            console.log('Error starting scan:', error);
-            setIsScanning(false);
-            setConnectionStatus({
-                isConnected: false,
-                deviceName: null,
-                error: `Scan error: ${error}`,
-            });
-        }
-    };
+                setConnectionStatus({
+                    isConnected: false,
+                    deviceName: null,
+                    error: `Scan error: ${error}`,
+                });
+            }
+    }
 
-    const handleDeviceConnect = async (device: Device) => {
+    async function handleDeviceConnect(device: Device) {
         try {
             setIsConnecting(true);
+            const connetedDevice = await bleManager.connectToDevice(device.id);
+            setConnectedDevice(connetedDevice);
+            if(connetedDevice){
+                onDeviceConnect(connectedDevice as Device);
+            }
+            await connetedDevice.discoverAllServicesAndCharacteristics();
+            await bleManager.stopDeviceScan();
             setIsScanning(false);
-            bleManager.stopDeviceScan();
 
-            await device.connect();
+            console.log("connecting");
+
             const newStatus = {
                 isConnected: true,
                 deviceName: device.name || 'Unknown Device',
                 error: null,
             };
             setConnectionStatus(newStatus);
-            onDeviceConnect(newStatus);
+            onDeviceConnectionStatus(newStatus);
 
             // Keep modal open for 2 seconds to show success message
             setTimeout(() => {
@@ -140,7 +148,7 @@ export const BluetoothModal: React.FC<BluetoothModalProps> = ({
                 error: `Connection failed: ${error}`,
             };
             setConnectionStatus(errorStatus);
-            onDeviceConnect(errorStatus);
+            onDeviceConnectionStatus(errorStatus);
         } finally {
             setIsConnecting(false);
         }
@@ -157,36 +165,44 @@ export const BluetoothModal: React.FC<BluetoothModalProps> = ({
         };
     }, [isVisible]);
 
-    const renderDevice = ({ item: device }: { item: Device }) => (
-        <TouchableOpacity
-            style={[
-                styles.deviceItem,
-                selectedDevice?.id === device.id && styles.selectedDevice
-            ]}
-            onPress={() => setSelectedDevice(device)}
-        >
-            <View style={styles.deviceInfo}>
-                <Text style={styles.deviceName}>
-                    {device.name || 'Unknown Device'}
-                </Text>
-                <Text style={styles.deviceId}>
-                    {device.id}
-                </Text>
-            </View>
+    const renderDevice = ({ item: device }: { item: Device }) => {
+        // Only render if device name includes "HC-06"
+        // if (!device.name?.includes("HC-06")) {
+        //     return null;
+        // }
+
+        return (
             <TouchableOpacity
                 style={[
-                    styles.connectButton,
-                    isConnecting && styles.connectingButton
+                    styles.deviceItem,
+                    selectedDevice?.id === device.id && styles.selectedDevice
                 ]}
-                onPress={() => handleDeviceConnect(device)}
-                disabled={isConnecting}
+                onPress={() => setSelectedDevice(device)}
             >
-                <Text style={styles.connectButtonText}>
-                    {isConnecting ? 'Connecting...' : 'Connect'}
-                </Text>
+                <View style={styles.deviceInfo}>
+                    <Text style={styles.deviceName}>
+                        {device.name || 'Unknown Device'}
+                    </Text>
+                    <Text style={styles.deviceId}>
+                        {device.id}
+                    </Text>
+                </View>
+                <TouchableOpacity
+                    style={[
+                        styles.connectButton,
+                        isConnecting && styles.connectingButton
+                    ]}
+                    onPress={() => handleDeviceConnect(device)}
+                    disabled={isConnecting}
+                >
+                    <Text style={styles.connectButtonText}>
+                        {isConnecting ? 'Connecting...' : 'Connect'}
+                    </Text>
+                </TouchableOpacity>
             </TouchableOpacity>
-        </TouchableOpacity>
-    );
+        );
+    };
+
 
     return (
         <Modal
@@ -214,7 +230,7 @@ export const BluetoothModal: React.FC<BluetoothModalProps> = ({
                     )}
 
                     <FlatList
-                        data={Array.from(devices)}
+                        data={Array.from(allDevices).filter(device => device.name?.includes(""))}
                         renderItem={renderDevice}
                         keyExtractor={device => device.id}
                         style={styles.deviceList}
@@ -224,6 +240,9 @@ export const BluetoothModal: React.FC<BluetoothModalProps> = ({
                             ) : null
                         }
                     />
+
+                    <ScrollView>
+                    </ScrollView>
 
                     <TouchableOpacity
                         style={styles.scanButton}
