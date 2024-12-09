@@ -1,9 +1,7 @@
 import { Stack } from 'expo-router';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {ToastProvider} from "~/components/ui/toast";
-import { Container } from '~/components/Container';
 import Index from '~/components/NavHome'
-import { ScreenContent } from '~/components/ScreenContent';
 import {Bot, Navigation} from "lucide-react-native";
 import {View,Text} from "react-native";
 
