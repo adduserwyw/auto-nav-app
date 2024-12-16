@@ -16,6 +16,12 @@
         {
           "launchMode": "most-recent"
         }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Show current location on map."
+        }
       ]
     ],
     "experiments": {
@@ -47,7 +53,8 @@
         "android.permission.BLUETOOTH_ADMIN",
         "android.permission.BLUETOOTH_CONNECT"
       ],
-      "package": "com.wendy_expo.autonavtest"
+      "package": "com.wendy_expo.autonavtest",
+      "newArchEnabled": true
     },
     "extra": {
       "router": {
