@@ -1,41 +1,56 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, Text } from 'react-native';
 import Slider from '@react-native-community/slider';
 import Toast from 'react-native-toast-message';
+import { useBluetoothControl } from '~/hooks/useBluetoothControl';
+import { Device } from 'react-native-ble-plx';
 
 interface SpeedControlProps {
-    onSpeedChange: (speed: number) => void;
-    currentSpeed: number;
+  onSpeedChange: (speed: number) => void;
+  currentSpeed: number;
+  connectedDevice: Device | null;
 }
 
-export const SpeedControl = ({ onSpeedChange, currentSpeed }: SpeedControlProps) => {
-    const handleSpeedChange = (value: number) => {
-        onSpeedChange(value);
-        Toast.show({
-            type: 'info',
-            text1: 'Speed Control',
-            text2: `Speed set to ${value} km/h`,
-            position: 'bottom'
-        });
-        console.log("Speed changed:", value);
-    };
+export const SpeedControl = ({
+  onSpeedChange,
+  currentSpeed,
+  connectedDevice,
+}: SpeedControlProps) => {
+  const { handleSpeedControlCommand } = useBluetoothControl(connectedDevice);
 
-    return (
-        <View className="bg-white bg-opacity-90 rounded-lg p-4">
-            {/*<View className="bg-white bg-opacity-90 rounded-lg shadow-lg p-4">*/}
-            <Text className="text-lg font-bold mb-2">Speed Control</Text>
-            <Text className="text-center text-base mb-2">{currentSpeed} km/h</Text>
-            <Slider
-                minimumValue={0}
-                maximumValue={120}
-                step={1}
-                style={{height: 40}}
-                value={currentSpeed}
-                onValueChange={handleSpeedChange}
-                minimumTrackTintColor="#8b5cf6"
-                maximumTrackTintColor="#8b5cf6"
-                thumbTintColor="#8b5cf6"
-            />
-        </View>
-    );
+  useEffect(() => {
+    if (connectedDevice) {
+      handleSpeedChange(currentSpeed);
+    }
+    console.log('SpeedControl: currentSpeed', currentSpeed);
+  }, [currentSpeed]);
+  const handleSpeedChange = (value: number) => {
+    onSpeedChange(value);
+    if (!connectedDevice) return;
+    handleSpeedControlCommand(connectedDevice, value.toString());
+    Toast.show({
+      type: 'info',
+      text1: 'Speed Control',
+      text2: `Speed set to ${value}`,
+      position: 'bottom',
+    });
+  };
+
+  return (
+    <View className="rounded-lg bg-white bg-opacity-90 p-4 shadow-lg">
+      <Text className="mb-2 text-lg font-bold">Speed Control</Text>
+      <Text className="mb-2 text-center text-base">Level: {currentSpeed}</Text>
+      <Slider
+        minimumValue={0}
+        maximumValue={10}
+        step={1}
+        style={{ height: 40 }}
+        value={currentSpeed}
+        onValueChange={handleSpeedChange}
+        minimumTrackTintColor="#8b5cf6"
+        maximumTrackTintColor="#8b5cf6"
+        thumbTintColor="#8b5cf6"
+      />
+    </View>
+  );
 };

@@ -1,79 +1,89 @@
-import React, {useRef, useState} from 'react';
+import React, { useRef, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { ArrowUp, ArrowDown, ArrowLeft, ArrowRight } from "lucide-react-native";
-import {Device} from "react-native-ble-plx";
-import {useBluetoothControl} from "~/hooks/useBluetoothControl";
-import {DirectionalButton} from "~/components/ui/DirectionalButton"
+import { Device } from 'react-native-ble-plx';
+import { useBluetoothControl } from '~/hooks/useBluetoothControl';
+import { DirectionalButton } from '~/components/ui/DirectionalButton';
 
 interface DirectionalControlsProps {
   onDirectionPress: (direction: 'up' | 'down' | 'left' | 'right') => void;
   connectedDevice: Device | null;
 }
 
+export const DirectionControls: React.FC<DirectionalControlsProps> = ({
+  onDirectionPress,
+  connectedDevice,
+}) => {
+  const { handleContinuousStepCommand, handleStopCommand, handleTurningCommand } =
+    useBluetoothControl(connectedDevice);
 
-export const DirectionControls: React.FC<DirectionalControlsProps> = ({ onDirectionPress,connectedDevice }) => {
-
-
-  const {
-    sendSingleCommand,
-      handleDirectionCommand
-  } = useBluetoothControl(connectedDevice);
-
-
-  const onLongPress = (direction) => {
-    handleDirectionCommand(direction);
+  const onLongPress = (direction: 'up' | 'down' | 'left' | 'right') => {
+    if (!connectedDevice) return;
+    handleContinuousStepCommand(connectedDevice, direction);
+    if (direction === 'up' || 'down') {
+    }
     console.log(`Long press ${direction} command`);
   };
 
-  const onShortPress = (direction) => {
-    sendSingleCommand(direction)
-    console.log(`Short press ${direction}`);
+  const onShortPress = (direction: 'up' | 'down' | 'left' | 'right') => {
+    if (!connectedDevice) return;
+    handleContinuousStepCommand(connectedDevice, direction);
+    if (direction === 'up' || 'down') {
+      setTimeout(() => {
+        handleStopCommand(connectedDevice);
+      }, 600);
+    }
   };
 
-    return (
-      <View className={style.container}>
-        <Text style={styles.heading}>Direction Controls</Text>
-        <View style={styles.grid}>
-          {/* Empty cell for spacing */}
-          <View style={styles.emptyCell} />
-          {/* Up button */}
-            <DirectionalButton
-                direction="up"
-                onShortPress={onShortPress}
-                onLongPress={onLongPress}
-                onDirectionPress={onDirectionPress}
-            />
-          {/* Empty cell for spacing */}
-          <View style={styles.emptyCell} />
-          {/* Left button */}
-            <DirectionalButton
-                direction="left"
-                onShortPress={onShortPress}
-                onLongPress={onLongPress}
-                onDirectionPress={onDirectionPress}
-            />
-          {/* Empty cell for spacing */}
-          <View style={styles.emptyCell} />
-          {/* Right button */}
-            <DirectionalButton
-                direction="right"
-                onDirectionPress={onDirectionPress}
-                iconSize={24}
-                iconColor="#e0e0e0"
-            />
-          {/* Empty cell for spacing */}
-          <View style={styles.emptyCell} />
-          {/* Down button */}
-            <DirectionalButton
-                direction="down"
-                onDirectionPress={onDirectionPress}
-                iconSize={24}
-                iconColor="#e0e0e0"
-            />
-          {/* Empty cell for spacing */}
-          <View style={styles.emptyCell} />
-        </View>
+  const onPressDirectionChange = (direction: 'up' | 'down' | 'left' | 'right') => {
+    if (!connectedDevice) return;
+    handleTurningCommand(connectedDevice, direction);
+    console.log(`press turning ${direction} command`);
+  };
+
+  return (
+    <View className={style.container}>
+      <Text style={styles.heading}>Direction Controls</Text>
+      <View style={styles.grid}>
+        {/* Empty cell for spacing */}
+        <View style={styles.emptyCell} />
+        {/* Up button */}
+        <DirectionalButton
+          direction="up"
+          onShortPress={onShortPress}
+          onLongPress={onLongPress}
+          onDirectionPress={onDirectionPress}
+        />
+        {/* Empty cell for spacing */}
+        <View style={styles.emptyCell} />
+        {/* Left button */}
+        <DirectionalButton
+          direction="left"
+          onShortPress={onPressDirectionChange}
+          onLongPress={onPressDirectionChange}
+          onDirectionPress={onDirectionPress}
+        />
+        {/* Empty cell for spacing */}
+        <View style={styles.emptyCell} />
+        {/* Right button */}
+        <DirectionalButton
+          direction="right"
+          onShortPress={onPressDirectionChange}
+          onLongPress={onPressDirectionChange}
+          onDirectionPress={onDirectionPress}
+        />
+        {/* Empty cell for spacing */}
+        <View style={styles.emptyCell} />
+        {/* Down button */}
+        <DirectionalButton
+          direction="down"
+          onShortPress={onShortPress}
+          onLongPress={onLongPress}
+          onDirectionPress={onDirectionPress}
+        />
+        {/* Empty cell for spacing */}
+        <View style={styles.emptyCell} />
       </View>
+    </View>
   );
 };
 
@@ -95,23 +105,11 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
   },
-  // button: {
-  //   width: 50,
-  //   height: 50,
-  //   justifyContent: 'center',
-  //   alignItems: 'center',
-  //   borderRadius: 8,
-  //   margin: 4,
-  // },
-  // upDown: {
-  //   backgroundColor: '#8b5cf6',
-  // },
   leftRight: {
     backgroundColor: '#8b5cf6',
   },
 });
 
-
-const style={
+const style = {
   container: `bg-white bg-opacity-90 rounded-lg shadow-lg p-4`,
 };
